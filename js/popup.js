@@ -4,20 +4,25 @@ chrome.storage.sync.get("color", ({ color }) => {
   changeColor.defaultValue = color;
 });
 
-changeColor.addEventListener("change", async () => {
+changeColor.addEventListener("input", async () => {
   let color = changeColor.value;
-  chrome.storage.sync.set({ color });
 
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: setNavbarBackgroundColor
+    function: setNavbarBackgroundColor,
+    args: [color]
   });
 });
 
-function setNavbarBackgroundColor() {
-  chrome.storage.sync.get("color", ({ color }) => {
+changeColor.addEventListener("change", async () => {
+  let color = changeColor.value;
+  chrome.storage.sync.set({ color });
+});
+
+function setNavbarBackgroundColor(color) {
+  chrome.storage.sync.get("color", () => {
     document.querySelector('nav').style.backgroundColor = color;
   });
 }
